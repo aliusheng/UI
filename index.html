@@ -1,0 +1,168 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"
+	/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <!-- 同步载入sdk -->
+    <script charset="UTF-8" src="https://cdn.jsdelivr.net/npm/sa-sdk-javascript@1.16.6/sensorsdata.min.js"></script>
+    <script charset="UTF-8">
+        var sensors = window['sensorsDataAnalytic201505'];
+        sensors.init({
+			// 数据接收地址，sdk数据发送到哪
+            server_url: 'https://jssdkdata.debugbox.sensorsdata.cn/sa?project=beiyong3',
+			heatmap: {
+				//是否开启点击图，default 表示开启，自动采集 $WebClick 事件，可以设置 'not_collect' 表示关闭。
+				clickmap:'default',
+				//是否开启触达注意力图，not_collect 表示关闭，不会自动采集 $WebStay 事件，可以设置 'default' 表示开启。
+				scroll_notice_map:'default',
+				// div支持采集事件
+				// collect_tags: {
+				// 	div: true
+				// },
+				// 自定义支持采集事件attr属性的自定义名称
+				// track_attr: ['data-prop-click'],
+				// 采集哪些页面的数据
+				// collect_url: function() {
+					// var reg = /.index.html$/;
+					// if (reg.test(location.href)) {
+					// 	return false
+					// } else {
+					// 	return true
+					// }
+				// },
+				//判断是否采集这个元素，此参数针对预置 $WebClick 事件（包括 quick('trackHeatMap') quick('trackAllHeatMap') 触发的）生效。
+				collect_element: function(element_target){
+					// 如果这个元素有属性sensors-disable=true时候，不采集。
+					if(element_target.getAttribute('sensors-disable') === 'true'){
+						return false;
+					}else{
+						return true;
+					}
+				},
+				//$WebClick 事件增加自定义属性，此参数针对预置 $WebClick 事件（包括 quick('trackHeatMap') quick('trackAllHeatMap') 触发的）生效。
+				custom_property:function( element_target ){
+					//比如您需要给有 data=test 属性的标签的点击事件增加自定义属性 name:'aa' ，则代码如下：
+					if(element_target.getAttribute('data') === 'test'){
+						return {
+							name:'aa'
+						}
+					}
+				},
+				collect_input:function(element_target){
+					//例如如果元素的 id 是a，就采集这个元素里的内容。
+					if(element_target.id === 'collect_input'){
+						return true;
+					}
+				},
+			},
+			source_channel: ['scyw_web'],
+			show_log: true,
+			is_track_single_page:true,
+			send_type: 'beacon',
+			// 开启批量发送
+			// batch_send:true
+		});
+		// 开启全埋点的$pageview事件
+        sensors.quick('autoTrack', {
+			platform: 'H5'
+		});
+    </script>
+	<title>Hello APP</title>
+	
+	<style>
+		html,
+		body {
+			height: 100%;
+			width: 100%;
+		}
+		
+		#wrap {
+			height: 100%;
+			display: -webkit-box;
+			display: -webkit-flex;
+			display: flex;
+			-webkit-box-orient: vertical;
+			-webkit-flex-flow: column;
+			flex-flow: column;
+		}
+		
+		.topbar {
+			background: #f1f1f1;
+			height: 50px;
+			border-bottom: 1px solid #fff;
+			line-height: 50px;
+			text-align: center;
+			color: #323237;
+			margin: 10px;
+		}
+		
+		.headerbar {
+			height: 80px;
+			line-height: 80px;
+			color: #fff;
+			font-size: 25px;
+			background: #1BB17B;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="wrap">
+		<header></header>
+		<section>
+			<div id="track1" class="topbar">
+				自定义事件1
+			</div>
+			<div id="login" class="topbar">
+				用户关联（login）
+			</div>
+			<div id="track2" class="topbar">
+				logout事件2
+			</div>
+			<div id="set" class="topbar">
+				设置用户属性（set）
+			</div>
+		</section>
+	</div>
+</body>
+
+<script type="text/javascript">
+		
+		
+		document.getElementById("track1").onclick = function () {
+			//事件1埋点
+			sensors.track("Test0227001",{
+                 ceshi:"###我的测试事件",
+                 showNum:"###asdfdf"
+			})
+
+		}
+		document.getElementById("login").onclick = function(){
+			//用户关联
+            sensors.login("刘升20210302")
+		}
+		document.getElementById("track2").onclick = function(){
+			//事件2埋点
+            sensors.logout()
+		}
+		document.getElementById("set").onclick = function(){
+			//设置用户属性
+            sensors.setProfile({email:'xxx@xx'});
+		}
+		// 代码埋点点击事件，自定义属性，回调
+		document.getElementById("submit_order").onclick = function(){
+			sensors.quick('trackHeatMap', this, {
+				customProp1: '1111', //如果需要添加自定义属性需要将 SDK 升级到 1.13.7 及以上版本。
+				customProp2: '2222'
+			}, function() {
+				console.log('我是 trackHeatMap');
+			});
+		}
+
+		
+</script>
+
+</html>
